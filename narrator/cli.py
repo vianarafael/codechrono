@@ -45,7 +45,7 @@ def estimate_task(args):
     past_sessions = db.get_estimation_data()
     estimate = summarizer.estimate_time(args.message, past_sessions)
     print(f"\n🧮 Estimated Time: {estimate}\n")
-    
+
 
 def report_sessions(args):
     print("📄 Recent Sessions:")
@@ -68,7 +68,12 @@ def main():
     report = subparsers.add_parser("report", help="Show past session summaries")
     report.set_defaults(func=report_sessions)
 
+    estimate = subparsers.add_parser("estimate", help="Estimate time for a new task")
+    estimate.add_argument("-m", "--message", type=str, required=True, help="Task description to estimate")
+    estimate.set_defaults(func=estimate_task)
+
     args = parser.parse_args()
+
     if hasattr(args, "func"):
         args.func(args)
     else:

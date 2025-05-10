@@ -1,4 +1,5 @@
 import requests
+import re
 
 NAME = "Rafael"
 
@@ -36,7 +37,7 @@ def summarize_session(commands, git_diff, window_log):
         })
         response.raise_for_status()
         summary = response.json()["response"]
-        summary = summary.replace("<think>", "").replace("</think>", "").strip()
+        summary = summary = re.sub(r"<think>.*?</think>", "", summary, flags=re.DOTALL).strip()
 
         return summary
     except Exception as e:
@@ -51,7 +52,15 @@ def estimate_time(task_description, past_sessions):
         prompt += f"### Session ({hours}h)\n- Feature: {s['message']}\n- Summary: {s['summary']}\n\n"
 
     prompt += f"Task: {task_description}\n\nHow long will this take? Respond with a time estimate and a short rationale."
+    prompt += f"""
+    Task: {task_description}
 
+    Please respond with:
+    1. A single estimated time range (e.g. '3–5 hours')
+    2. A bullet-point breakdown (feature → time)
+    3. A short note on factors that may affect the estimate
+    Don't use markdown. Be concise. 
+    """
     try:
         response = requests.post(OLLAMA_URL, json={
             "model": MODEL_NAME,
@@ -59,7 +68,7 @@ def estimate_time(task_description, past_sessions):
             "stream": False
         })
         estimate = response.json()["response"]
-        estimate = estimate.replace("<think>", "").replace("</think>", "").strip()
+        estimate = re.sub(r"<think>.*?</think>", "", estimate, flags=re.DOTALL).strip()
         return estimate
     except Exception as e:
         return f"⚠️ Error estimating time: {e}"

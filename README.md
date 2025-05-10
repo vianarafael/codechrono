@@ -1,4 +1,4 @@
-# 🧠 CodeChrono isn’t just for estimates — it’s your personal feedback loop. Know where your time goes. Learn to go faster.
+#  CodeChrono helps you estimate how long software tasks will take — based on how long you actually take to build them.
 
 A local LLM-powered dev session logger that watches your terminal, code changes, and app focus — then summarizes what you worked on.
 

@@ -21,7 +21,7 @@ def build_prompt(commands, git_diff, window_log):
     prompt += (
         "### Summary Task:\n"
         "Summarize what was worked on: features, bugs, deployments, refactors.\n"
-        "Use clear bullet points. Be concise but informative."
+        "Use clear bullet points, but no markup. Be concise but informative."
     )
 
     return prompt

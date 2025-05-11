@@ -1,6 +1,7 @@
 import argparse
 import time
-from narrator import logger, db, summarizer
+from narrator import logger, db, summarizer, llm
+import re
 
 SESSION_STATE = {"start_time": None}
 
@@ -51,7 +52,47 @@ def report_sessions(args):
     print("📄 Recent Sessions:")
     sessions = db.get_recent_summaries()
     for s in sessions:
-        print(f"\n🕒 {time.ctime(s['start'])} — {time.ctime(s['end'])}\n{ s['summary'] }\n")
+        start = time.ctime(s["start"])
+        end = time.ctime(s["end"])
+        message = s.get("message", "(no tag)")
+        duration = round((s["end"] - s["start"]) / 60, 1)  # in minutes
+
+        summary = s.get("summary", "").strip()
+        summary = re.sub(r"<think>.*?</think>", "", summary, flags=re.DOTALL).strip()
+
+        print(f"\n🕒 {start} — {end}  ⏱ {duration} min  🏷 {message}\n{summary}\n")
+
+def query_analysis(query_prompt: str, session_data: list) -> str:
+    if not session_data:
+        return "No past session data available."
+
+    formatted_sessions = []
+    for session in session_data:
+        message = session.get("message", "")
+        duration = round(session.get("duration", 0) / 3600, 2)
+        summary = session.get("summary", "")
+        formatted_sessions.append(f"- {message} | {duration} hours\n  {summary}")
+
+    prompt = f"""
+    Here's a list of my dev sessions with task name, time spent, and summaries:
+
+    {chr(10).join(formatted_sessions)}
+
+    Based on the above, please answer the following:
+    {query_prompt}
+    """
+
+    raw_response = llm.run_llm(prompt)
+    cleaned = re.sub(r"<think>.*?</think>", "", raw_response, flags=re.DOTALL)
+    cleaned = re.sub(r"[#*`>_]", "", cleaned)  # strip markdown chars
+    return cleaned.strip()
+
+def query_sessions(args):
+    print(f"🧠 Analyzing session history with query: {args.message}")
+    data = db.get_estimation_data()
+    result = query_analysis(args.message, data)
+    print(f"\n🤖 {result}\n")
+
 
 
 def main():
@@ -71,6 +112,12 @@ def main():
     estimate = subparsers.add_parser("estimate", help="Estimate time for a new task")
     estimate.add_argument("-m", "--message", type=str, required=True, help="Task description to estimate")
     estimate.set_defaults(func=estimate_task)
+
+    query = subparsers.add_parser("query", help="Ask high-level questions about your session history")
+    query.add_argument("-m", "--message", type=str, required=True, help="Query prompt for the LLM")
+    query.set_defaults(func=query_sessions)
+
+
 
     args = parser.parse_args()
 

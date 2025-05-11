@@ -1,10 +1,11 @@
 import requests
 import re
+from narrator.llm import MODEL_NAME
 
 NAME = "Rafael"
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "qwen3:14b-q4_K_M"
+
 
 def build_prompt(commands, git_diff, window_log):
     prompt = "You are an AI dev assistant. Summarize the developer's coding session.\n\n"

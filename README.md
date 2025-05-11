@@ -27,7 +27,7 @@ See what you worked on, how long it took, and whether you’re speeding up — a
 ## 📦 Requirements
 
 - Python 3.8+
-- [Ollama](https://ollama.com) installed and running a model (e.g. `mistral`)
+- [Ollama](https://ollama.com) installed and running a model (e.g. `qwen3`)
 - Shell that supports `PROMPT_COMMAND` (bash, zsh)
 - App focus tracking (optional):
   - `xdotool` for Linux
@@ -51,7 +51,7 @@ See what you worked on, how long it took, and whether you’re speeding up — a
    bash scripts/setup_terminal_logger.sh
    source ~/.bashrc   # or source ~/.zshrc
 
-   ollama run qwen3:14b-q4_K_M  
+   ollama run qwen3:14b-q4_K_M  # change MODEL_NAME in narrator/llm.py - since I have logic to strip <think>...
    ```
 
 ---
@@ -139,6 +139,21 @@ Give recommendations if possible.
 ```
 
 This turns CodeChrono into a **local dev analyst** — not just a logger.
+
+
+⚙️ Model Compatibility
+CodeChrono is designed and tested with the qwen3:14b-q4_K_M model.
+
+Qwen models often include reasoning blocks like <think>...</think>, which CodeChrono strips automatically.
+If you're using a different model (e.g. mistral, llama2, etc.), those tags may not appear — or the output format may change entirely.
+
+To adjust for this, you can update your llm.py like so:
+
+```python
+if "qwen" in MODEL_NAME:
+    response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
+```
+
 
 ## ⚡️ Make It Frictionless
 

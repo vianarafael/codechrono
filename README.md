@@ -77,6 +77,26 @@ python run.py report
 
 ---
 
+## 🖥 Launch the Dashboard
+
+To visualize your session history and track your development speed over time, run:
+
+```bash
+streamlit run dashboard.py
+```
+Once it starts, open [http://localhost:8501](http://localhost:8501) in your browser.
+
+The dashboard shows:
+
+- ⏱️ Time spent per session  
+- ⚡ Your fastest vs slowest tasks  
+- 📉 Whether you're getting faster or slower  
+- 🧱 A breakdown of features you've built  
+
+> 💡 **Tip:** Make sure you’ve logged at least one session before launching the dashboard.
+
+
+
 ## 🔮 Estimate time for a new feature
 
 ```bash
